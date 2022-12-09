@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	file, err := os.Open("./01/part1question.txt")
+	file, err := os.Open("./01/question.txt")
 	if err != nil {
 		panic(err)
 	}

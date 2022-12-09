@@ -17,7 +17,7 @@ const (
 )
 
 func main() {
-	file, err := os.Open("./09/part1question.txt")
+	file, err := os.Open("./09/question.txt")
 	if err != nil {
 		panic(err)
 	}
