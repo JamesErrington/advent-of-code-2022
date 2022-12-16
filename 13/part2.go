@@ -28,6 +28,15 @@ func (e Element) is_list() bool {
 	return e._type == ELEMENT_LIST
 }
 
+func (e Element) is_divider() bool {
+	return e._type == ELEMENT_LIST &&
+		len(e.list) == 1 &&
+		e.list[0]._type == ELEMENT_LIST &&
+		len(e.list[0].list) == 1 &&
+		e.list[0].list[0]._type == ELEMENT_INTEGER &&
+		(e.list[0].list[0].integer == 2 || e.list[0].list[0].integer == 6)
+}
+
 func main() {
 	file, err := os.Open("./13/question.txt")
 	if err != nil {
@@ -35,29 +44,40 @@ func main() {
 	}
 	defer file.Close()
 
-	index := 1
-	sum := 0
+	list := []Element{parse_packet("[[2]]"), parse_packet("[[6]]")}
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		left_str := scanner.Text()
-		scanner.Scan()
-		right_str := scanner.Text()
-		scanner.Scan()
-
-		left := parse_packet(left_str)
-		right := parse_packet(right_str)
-
-		order := compare(left, right)
-		fmt.Println("Correct order:", order)
-		if order == CORRECT_ORDER {
-			sum += index
+		packet_str := scanner.Text()
+		if len(packet_str) == 0 {
+			continue
 		}
 
-		index += 1
+		packet := parse_packet(packet_str)
+
+		for i, other := range list {
+			order := compare(packet, other)
+
+			if order == CORRECT_ORDER {
+				list = append(list[:i+1], list[i:]...)
+				list[i] = packet
+				break
+			}
+
+			if order == INCORRECT_ORDER && i == len(list)-1 {
+				list = append(list, packet)
+			}
+		}
 	}
 
-	fmt.Println(sum)
+	product := 1
+	for i, element := range list {
+		if element.is_divider() {
+			fmt.Println(element)
+			product *= (i + 1)
+		}
+	}
+	fmt.Println(product)
 }
 
 func parse_packet(input string) Element {
