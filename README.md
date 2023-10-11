@@ -1,3 +1,3 @@
 [Advent of Code 2022](https://adventofcode.com/2022)
 
-This time in Go.
+Orginally in Go, now in Zig and OCaml too.
