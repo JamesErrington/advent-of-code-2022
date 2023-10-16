@@ -6,6 +6,12 @@ const Move = enum(u8) {
     Scissors,
 };
 
+const Result = enum(u8) {
+    Win = 0,
+    Loss,
+    Draw,
+};
+
 const WIN_POINTS = 6;
 const DRAW_POINTS = 3;
 const LOSS_POINTS = 0;
@@ -22,24 +28,33 @@ fn parse_move(char: u8) !Move {
     };
 }
 
+fn parse_result(char: u8) !Result {
+    return switch (char) {
+        0, 'X' => .Loss,
+        1, 'Y' => .Draw,
+        2, 'Z' => .Win,
+        else => error.UnknownResult,
+    };
+}
+
 const MOVE_POINTS = [_]u8{ ROCK_POINTS, PAPER_POINTS, SCISSORS_POINTS };
 
-fn game_points(comptime i: Move, comptime j: Move) u8 {
-    return switch (i) {
-        .Rock => switch (j) {
-            .Rock => DRAW_POINTS,
-            .Paper => WIN_POINTS,
-            .Scissors => LOSS_POINTS,
+fn game_points(comptime op_move: Move, comptime result: Result) u8 {
+    return switch (result) {
+        .Win => WIN_POINTS + switch (op_move) {
+            .Rock => PAPER_POINTS,
+            .Paper => SCISSORS_POINTS,
+            .Scissors => ROCK_POINTS,
         },
-        .Paper => switch (j) {
-            .Rock => LOSS_POINTS,
-            .Paper => DRAW_POINTS,
-            .Scissors => WIN_POINTS,
+        .Loss => LOSS_POINTS + switch (op_move) {
+            .Rock => SCISSORS_POINTS,
+            .Paper => ROCK_POINTS,
+            .Scissors => PAPER_POINTS,
         },
-        .Scissors => switch (j) {
-            .Rock => WIN_POINTS,
-            .Paper => LOSS_POINTS,
-            .Scissors => DRAW_POINTS,
+        .Draw => DRAW_POINTS + switch (op_move) {
+            .Rock => ROCK_POINTS,
+            .Paper => PAPER_POINTS,
+            .Scissors => SCISSORS_POINTS,
         },
     };
 }
@@ -51,10 +66,9 @@ fn generate_table() [9]u8 {
         var j: u8 = 0;
         while (j < 3) : (j += 1) {
             const idx = j + 3 * i;
-            array[idx] = MOVE_POINTS[j] + game_points(parse_move(i) catch .Rock, parse_move(j) catch .Rock);
+            array[idx] = game_points(parse_move(i) catch .Rock, parse_result(j) catch .Loss);
         }
     }
-
     return array;
 }
 
