@@ -12,7 +12,7 @@ pub fn main() !void {
     var current: u32 = 0;
 
     while (try stream.readUntilDelimiterOrEof(&buffer, '\n')) |line| {
-        const end = if (line[line.len-1] == '\r') line.len - 1 else line.len;
+        const end = if (line[line.len - 1] == '\r') line.len - 1 else line.len;
         const value = std.fmt.parseInt(u32, line[0..end], 10);
 
         if (value) |val| {
@@ -27,4 +27,4 @@ pub fn main() !void {
     }
 
     std.log.info("{d}", .{best});
-} 
+}
